@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>Student</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="bootstrap/css/bootstrap.css" rel="stylesheet"
+              type="text/css">
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"
+              type="text/css">
+        <script src="jquery/jquery-3.6.4.js" type="text/javascript"></script>
+        <script src="jquery/jquery.validate.min.js" type="text/javascript"></script>
+
+        <link href="datatable/datatables.min.css" rel="stylesheet" type="text/css"/>
+        <script src="datatable/datatables.min.js" type="text/javascript"></script>
+
+    </head>
+    <header>
+        <nav class="nav navbar-dark bg-dark">
+            <h3 style="color: white">Student Management Ajax</h3>
+        </nav>
+    </header>
+
+    <body>
+
+        <div class="container" style="margin-top: 20px">
+            <div class="content">
+                <div class="row">
+
+                    <div class="col-sm-4">
+                        <form id="frmStudent" name="frmStudent">
+                            <input class="form-control" type="hidden" name="id" id="id">
+                            <div class="form-group">
+                                <label>Student name</label>
+                                <input class="form-control" type="text" name="stdName" id="stdName" placeholder="Student name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Course</label>
+                                <input class="form-control" type="text" name="course" id="course" placeholder="Course" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Fee course</label>
+                                <input class="form-control" type="text" name="fee" id="fee" placeholder="Fee course" required>
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn btn-success" type="button" name="save" id="save" onclick="addStudent()">ADD</button>
+                                <button class="btn btn-warning" type="reset" name="reset" id="reset" onclick="resetForm()">Reset</button>
+                            </div>
+
+                        </form>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="panel-body">
+                            <table id="tblStudent" class="table table-bordered" cellpadding="0" cellspacing="0" width="100%">
+                                <thead>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script>
+            var isNew = true;
+            getAll();
+
+            function addStudent() {
+
+                if ($("#frmStudent").valid()) {
+                    var url = "";
+                    var data = "";
+                    var method;
+
+                    if (isNew) {
+                        url = "addStudent.jsp";
+                        data = $("#frmStudent").serialize();
+                        method = "POST";
+                    } else {
+                        url = "updateStudent.jsp";
+                        data = $("#frmStudent").serialize();
+                        method = "POST";
+                    }
+
+                    $.ajax({
+                        type: method,
+                        url: url,
+                        dataType: "JSON",
+                        data: data,
+
+                        success: function (data, textStatus, jqXHR) {
+                            console.log(data);
+                            $("#id").val("");
+                            $("#stdName").val("");
+                            $("#course").val("");
+                            $("#fee").val("");
+                            getAll();
+                            if (isNew) {
+                                alert("Student added.");
+                            } else {
+                                alert("Student updated.");
+                            }
+                        }
+                    });
+                }
+            }
+
+            function getAll() {
+                $("#tblStudent").dataTable().fnDestroy();
+                $.ajax({
+                    url: "getStudents.jsp",
+                    type: 'GET',
+                    dataType: 'JSON',
+
+                    success: function (data, textStatus, jqXHR) {
+                        $("#tblStudent").dataTable({
+                            "aaData": data,
+                            "scrollX": true,
+                            "aoColumns": [
+                                {"sTitle": "ID", "mData": "idBase"},
+                                {"sTitle": "Student name", "mData": "nameBase"},
+                                {"sTitle": "Course", "mData": "courseBase"},
+                                {"sTitle": "Fee", "mData": "feeBase"},
+                                {"sTitle": "Edit", "mData": "idBase",
+                                    "render": function (mData, type, row, meta) {
+                                        return '<button class="btn btn-success" onclick="getDetails(' + mData + ')"> Edit </button>';
+                                    }
+                                },
+                                {"sTitle": "Delete", "mData": "idBase",
+                                    "render": function (mData, type, row, meta) {
+                                        return '<button class="btn btn-danger" onclick="getDelete(' + mData + ')">X</button>';
+                                    }
+                                }
+                            ]
+                        });
+                    }
+                });
+                isNew = true;
+            }
+
+            function getDetails(id) {
+                isNew = false;
+                $.ajax({
+                    url: "editStudent.jsp",
+                    type: "GET",
+                    dataType: 'JSON',
+                    data: {"id": id},
+
+                    success: function (data, textStatus, jqXHR) {
+                        $("#id").val(data[0].idBase);
+                        $("#stdName").val(data[0].nameBase);
+                        $("#course").val(data[0].courseBase);
+                        $("#fee").val(data[0].feeBase);
+                    }
+                });
+            }
+
+
+            function getDelete(id) {
+                $.ajax({
+                    url: "deleteStudent.jsp",
+                    type: "POST",
+                    dataType: 'JSON',
+                    data: {"id": id},
+                    success: function (data, textStatus, jqXHR) {
+                        getAll();
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>
