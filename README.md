@@ -4,4 +4,5 @@ Simple app (CRUD) to manage students log.
 
 JSP, Jquery, Ajax, Boostrap
 
-![image](https://user-images.githubusercontent.com/90009567/227728601-a61473cf-a8a7-4e00-8a7a-8f03251b6a65.png)
+![image](https://user-images.githubusercontent.com/90009567/227728731-b6843124-975e-4fdb-bca5-0a534c483046.png)
+
